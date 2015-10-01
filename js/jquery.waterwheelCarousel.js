@@ -378,14 +378,17 @@
         // This is for the intitial setup
         if ($item.data('oldPosition') === 0) {
           $item
-              .css({ 'z-index': $item.data().depth })
               .css({
                 'left': $item.data().left,
-                'width': $item.data().width,
-                'height': $item.data().height,
                 'top': $item.data().top,
-                'opacity': $item.data().opacity
+                'opacity': $item.data().opacity,
+                'z-index': $item.data().depth
               });
+
+          TweenMax.to($item, 0, {
+            scaleX: $item.data('distanceFactor'),
+            scaleY: $item.data('distanceFactor')
+          });
         }
       }
 

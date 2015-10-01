@@ -1,4 +1,5 @@
 # jQuery-Waterwheel-Carousel with ability to rotate blocks (e.g. div's) instead of images (img's). #
+New dependency: https://greensock.com/tweenmax
 
 Author's README:
 ----------------
