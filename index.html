@@ -4,6 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Waterwheel Carousel Demo</title>
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/TweenMax.min.js"></script>
     <script type="text/javascript" src="js/jquery.waterwheelCarousel.js"></script>
     <script type="text/javascript">
       $(document).ready(function () {
@@ -65,7 +66,7 @@
         overflow:hidden;
         background:#FFF;
       }
-      #carousel img {
+      #carousel div {
         visibility:hidden; /* hide images until carousel can handle them */
         cursor:pointer; /* otherwise it's not as obvious items can be clicked */
       }
@@ -91,15 +92,33 @@
   <body>
     <h1>Carousel Demo</h1>
     <div id="carousel">
-      <img src="images/1.jpg" id="item-1" />
-      <img src="images/2.jpg" id="item-2" />
-      <img src="images/3.jpg" id="item-3" />
-      <img src="images/4.jpg" id="item-4" />
-      <img src="images/5.jpg" id="item-5" />
-      <img src="images/6.jpg" id="item-6" />
-      <img src="images/7.jpg" id="item-7" />
-      <img src="images/8.jpg" id="item-8" />
-      <img src="images/9.jpg" id="item-9" />
+      <div>
+        <img src="images/1.jpg" id="item-1" />
+      </div>
+      <div>
+        <img src="images/2.jpg" id="item-2" />
+      </div>
+      <div>
+        <img src="images/3.jpg" id="item-3" />
+      </div>
+      <div>
+        <img src="images/4.jpg" id="item-4" />
+      </div>
+      <div>
+        <img src="images/5.jpg" id="item-5" />
+      </div>
+      <div>
+        <img src="images/6.jpg" id="item-6" />
+      </div>
+      <div>
+        <img src="images/7.jpg" id="item-7" />
+      </div>
+      <div>
+        <img src="images/8.jpg" id="item-8" />
+      </div>
+      <div>
+        <img src="images/9.jpg" id="item-9" />
+      </div>
     </div>
     <a href="#" id="prev">Prev</a> | <a href="#" id="next">Next</a>
 

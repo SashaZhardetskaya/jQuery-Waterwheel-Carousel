@@ -12,14 +12,15 @@
  * for use with the jQuery JavaScript Framework
  * http://www.jquery.com
  */
-;(function ($) {
+;
+(function ($) {
   'use strict';
 
   $.fn.waterwheelCarousel = function (startingOptions) {
 
     // Adds support for intializing multiple carousels from the same selector group
     if (this.length > 1) {
-      this.each(function() {
+      this.each(function () {
         $(this).waterwheelCarousel(startingOptions);
       });
       return this; // allow chaining
@@ -31,25 +32,25 @@
 
     function initializeCarouselData() {
       data = {
-        itemsContainer:         $(carousel),
-        totalItems:             $(carousel).find('img').length,
-        containerWidth:         $(carousel).width(),
-        containerHeight:        $(carousel).height(),
-        currentCenterItem:      null,
-        previousCenterItem:     null,
-        items:                  [],
-        calculations:           [],
-        carouselRotationsLeft:  0,
-        currentlyMoving:        false,
-        itemsAnimating:         0,
-        currentSpeed:           options.speed,
-        intervalTimer:          null,
-        currentDirection:       'forward',
-        leftItemsCount:         0,
-        rightItemsCount:        0,
-        performingSetup:        true
+        itemsContainer: $(carousel),
+        totalItems: $(carousel).children().length,
+        containerWidth: $(carousel).width(),
+        containerHeight: $(carousel).height(),
+        currentCenterItem: null,
+        previousCenterItem: null,
+        items: [],
+        calculations: [],
+        carouselRotationsLeft: 0,
+        currentlyMoving: false,
+        itemsAnimating: 0,
+        currentSpeed: options.speed,
+        intervalTimer: null,
+        currentDirection: 'forward',
+        leftItemsCount: 0,
+        rightItemsCount: 0,
+        performingSetup: true
       };
-      data.itemsContainer.find('img').removeClass(options.activeClassName);
+      data.itemsContainer.children().removeClass(options.activeClassName);
     }
 
     /**
@@ -81,12 +82,15 @@
      * if a user instead manually specifies that information.
      */
     function preload(callback) {
-      if (options.preloadImages === false) {
+
+      var $imageElements = data.itemsContainer.find('img'),
+          totalImages = $imageElements.length,
+          loadedImages = 0;
+
+      if (options.preloadImages === false || $imageElements.length === 0) {
         callback();
         return;
       }
-
-      var $imageElements = data.itemsContainer.find('img'), loadedImages = 0, totalImages = $imageElements.length;
 
       $imageElements.each(function () {
         $(this).bind('load', function () {
@@ -115,7 +119,7 @@
      * original dimensions.
      */
     function setOriginalItemDimensions() {
-      data.itemsContainer.find('img').each(function () {
+      data.itemsContainer.children().each(function () {
         if ($(this).data('original_width') == undefined || options.forcedImageWidth > 0) {
           $(this).data('original_width', $(this).width());
         }
@@ -133,7 +137,7 @@
      */
     function forceImageDimensionsIfEnabled() {
       if (options.forcedImageWidth && options.forcedImageHeight) {
-        data.itemsContainer.find('img').each(function () {
+        data.itemsContainer.children().each(function () {
           $(this).width(options.forcedImageWidth);
           $(this).height(options.forcedImageHeight);
         });
@@ -147,12 +151,12 @@
      */
     function preCalculatePositionProperties() {
       // The 0 index is the center item in the carousel
-      var $firstItem = data.itemsContainer.find('img:first');
+      var $firstItem = data.itemsContainer.children().eq(0);
 
       data.calculations[0] = {
         distance: 0,
-        offset:   0,
-        opacity:  1
+        offset: 0,
+        opacity: 1
       }
 
       // Then, for each number of flanking items (plus one more, see below), we
@@ -165,9 +169,9 @@
           separation *= options.separationMultiplier;
         }
         data.calculations[i] = {
-          distance: data.calculations[i-1].distance + separation,
-          offset:   data.calculations[i-1].offset + horizonOffset,
-          opacity:  data.calculations[i-1].opacity * options.opacityMultiplier
+          distance: data.calculations[i - 1].distance + separation,
+          offset: data.calculations[i - 1].offset + horizonOffset,
+          opacity: data.calculations[i - 1].opacity * options.opacityMultiplier
         }
       }
       // We performed 1 extra set of calculations above so that the items that
@@ -175,9 +179,9 @@
       // However, we need them to animate to hidden, so we set the opacity to 0 for
       // that last item
       if (options.edgeFadeEnabled) {
-        data.calculations[options.flankingItems+1].opacity = 0;
+        data.calculations[options.flankingItems + 1].opacity = 0;
       } else {
-        data.calculations[options.flankingItems+1] = {
+        data.calculations[options.flankingItems + 1] = {
           distance: 0,
           offset: 0,
           opacity: 0
@@ -192,7 +196,7 @@
      */
     function setupCarousel() {
       // Fill in a data array with jQuery objects of all the images
-      data.items = data.itemsContainer.find('img');
+      data.items = data.itemsContainer.children();
       for (var i = 0; i < data.totalItems; i++) {
         data.items[i] = $(data.items[i]);
       }
@@ -208,8 +212,8 @@
 
       // Default all the items to the center position
       data.itemsContainer
-        .css('position','relative')
-        .find('img')
+          .css('position', 'relative')
+          .children()
           .each(function () {
             // Figure out where the top and left positions for center should be
             var centerPosLeft, centerPosTop;
@@ -222,26 +226,26 @@
             }
             $(this)
               // Apply positioning and layering to the images
-              .css({
-                'left': centerPosLeft,
-                'top': centerPosTop,
-                'visibility': 'visible',
-                'position': 'absolute',
-                'z-index': 0,
-                'opacity': 0
-              })
+                .css({
+                  'left': centerPosLeft,
+                  'top': centerPosTop,
+                  'visibility': 'visible',
+                  'position': 'absolute',
+                  'z-index': 0,
+                  'opacity': 0
+                })
               // Give each image a data object so it remembers specific data about
               // it's original form
-              .data({
-                top:             centerPosTop,
-                left:            centerPosLeft,
-                oldPosition:     0,
-                currentPosition: 0,
-                depth:           0,
-                opacity:         0
-              })
+                .data({
+                  top: centerPosTop,
+                  left: centerPosLeft,
+                  oldPosition: 0,
+                  currentPosition: 0,
+                  depth: 0,
+                  opacity: 0
+                })
               // The image has been setup... Now we can show it
-              .show();
+                .show();
           });
     }
 
@@ -253,15 +257,15 @@
     function setupStarterRotation() {
       options.startingItem = (options.startingItem === 0) ? Math.round(data.totalItems / 2) : options.startingItem;
 
-      data.rightItemsCount = Math.ceil((data.totalItems-1) / 2);
-      data.leftItemsCount = Math.floor((data.totalItems-1) / 2);
+      data.rightItemsCount = Math.ceil((data.totalItems - 1) / 2);
+      data.leftItemsCount = Math.floor((data.totalItems - 1) / 2);
 
       // We are in effect rotating the carousel, so we need to set that
       data.carouselRotationsLeft = 1;
 
       // Center item
-      moveItem(data.items[options.startingItem-1], 0);
-      data.items[options.startingItem-1].css('opacity', 1);
+      moveItem(data.items[options.startingItem - 1], 0);
+      data.items[options.startingItem - 1].css('opacity', 1);
 
       // All the items to the right of center
       var itemIndex = options.startingItem - 1;
@@ -274,7 +278,7 @@
 
       // All items to left of center
       var itemIndex = options.startingItem - 1;
-      for (var pos = -1; pos >= data.leftItemsCount*-1; pos--) {
+      for (var pos = -1; pos >= data.leftItemsCount * -1; pos--) {
         (itemIndex > 0) ? itemIndex -= 1 : itemIndex = data.totalItems - 1;
 
         data.items[itemIndex].css('opacity', 1);
@@ -319,6 +323,9 @@
         var newTop = center + newDistance - (newHeight / 2);
       }
 
+      newTop -= heightDifference / 2;
+      newLeft -= widthDifference / 2;
+
       var newOpacity;
       if (newPosition === 0) {
         newOpacity = 1;
@@ -329,13 +336,14 @@
       // Depth will be reverse distance from center
       var newDepth = options.flankingItems + 2 - newDistanceFromCenter;
 
-      $item.data('width',newWidth);
-      $item.data('height',newHeight);
-      $item.data('top',newTop);
-      $item.data('left',newLeft);
-      $item.data('oldPosition',$item.data('currentPosition'));
-      $item.data('depth',newDepth);
-      $item.data('opacity',newOpacity);
+      $item.data('width', newWidth);
+      $item.data('height', newHeight);
+      $item.data('top', newTop);
+      $item.data('left', newLeft);
+      $item.data('oldPosition', $item.data('currentPosition'));
+      $item.data('depth', newDepth);
+      $item.data('opacity', newOpacity);
+      $item.data('distanceFactor', distanceFactor);
     }
 
     function moveItem($item, newPosition) {
@@ -347,32 +355,37 @@
         data.itemsAnimating++;
 
         $item
-          .css('z-index',$item.data().depth)
+            .css('z-index', $item.data().depth)
           // Animate the items to their new position values
-          .animate({
-            left:    $item.data().left,
-            width:   $item.data().width,
-            height:  $item.data().height,
-            top:     $item.data().top,
-            opacity: $item.data().opacity
-          }, data.currentSpeed, options.animationEasing, function () {
-            // Animation for the item has completed, call method
-            itemAnimationComplete($item, newPosition);
-          });
+            .animate({
+              'left': $item.data().left,
+              'top': $item.data().top,
+              'opacity': $item.data().opacity
+            }, data.currentSpeed, options.animationEasing, function () {
+              // Animation for the item has completed, call method
+              itemAnimationComplete($item, newPosition);
+            });
+
+        TweenMax.to($item, data.currentSpeed / 1000, {
+          scaleX: $item.data('distanceFactor'),
+          scaleY: $item.data('distanceFactor'),
+          ease: options.animationEasing
+        });
 
       } else {
         $item.data('currentPosition', newPosition)
         // Move the item to the 'hidden' position if hasn't been moved yet
         // This is for the intitial setup
         if ($item.data('oldPosition') === 0) {
-          $item.css({
-            'left':    $item.data().left,
-            'width':   $item.data().width,
-            'height':  $item.data().height,
-            'top':     $item.data().top,
-            'opacity': $item.data().opacity,
-            'z-index': $item.data().depth
-          });
+          $item
+              .css({ 'z-index': $item.data().depth })
+              .css({
+                'left': $item.data().left,
+                'width': $item.data().width,
+                'height': $item.data().height,
+                'top': $item.data().top,
+                'opacity': $item.data().opacity
+              });
         }
       }
 
@@ -403,7 +416,7 @@
         // we pass in zero because we don't want to add any additional rotations
         if (data.carouselRotationsLeft > 0) {
           rotateCarousel(0);
-        // Otherwise there are no more rotations and...
+          // Otherwise there are no more rotations and...
         } else {
           // Reset the speed of the carousel to original
           data.currentSpeed = options.speed;
@@ -437,7 +450,7 @@
         data.currentlyMoving = true;
         data.itemsAnimating = 0;
         data.carouselRotationsLeft += rotations;
-        
+
         if (options.quickerForFurther === true) {
           // Figure out how fast the carousel should rotate
           if (rotations > 1) {
@@ -467,7 +480,7 @@
             // when we have an item switch sides. The right side will always have 1 more in that case
             if (data.totalItems % 2 == 0) {
               newPosition += 1;
-            } 
+            }
           }
 
           moveItem($item, newPosition);
@@ -481,7 +494,7 @@
      * to get the clicked item to the center, or will fire the custom event
      * the user passed in if the center item is clicked
      */
-    $(this).find('img').bind("click", function () {
+    $(this).children().bind("click", function () {
       var itemPosition = $(this).data().currentPosition;
 
       if (options.imageNav == false) {
@@ -501,7 +514,7 @@
       // Remove autoplay
       autoPlay(true);
       options.autoPlay = 0;
-      
+
       var rotations = Math.abs(itemPosition);
       if (itemPosition == 0) {
         options.clickedCenter($(this));
@@ -516,22 +529,6 @@
           data.currentDirection = 'forward';
           rotateCarousel(rotations);
         }
-      }
-    });
-
-
-    /**
-     * The user may choose to wrap the images is link tags. If they do this, we need to
-     * make sure that they aren't active for certain situations
-     */
-    $(this).find('a').bind("click", function (event) {
-      var isCenter = $(this).find('img').data('currentPosition') == 0;
-      // should we disable the links?
-      if (options.linkHandling === 1 || // turn off all links
-          (options.linkHandling === 2 && !isCenter)) // turn off all links except center
-      {
-        event.preventDefault();
-        return false;
       }
     });
 
@@ -571,18 +568,18 @@
 
       rotateCarousel(1);
     }
-    
+
     /**
      * Navigation with arrow keys
      */
-    $(document).keydown(function(e) {
+    $(document).keydown(function (e) {
       if (options.keyboardNav) {
         // arrow left or up
         if ((e.which === 37 && options.orientation == 'horizontal') || (e.which === 38 && options.orientation == 'vertical')) {
           autoPlay(true);
           options.autoPlay = 0;
           moveOnce('backward');
-        // arrow right or down
+          // arrow right or down
         } else if ((e.which === 39 && options.orientation == 'horizontal') || (e.which === 40 && options.orientation == 'vertical')) {
           autoPlay(true);
           options.autoPlay = 0;
@@ -590,9 +587,9 @@
         }
         // should we override the normal functionality for the arrow keys?
         if (options.keyboardNavOverride && (
-            (options.orientation == 'horizontal' && (e.which === 37 || e.which === 39)) ||
-            (options.orientation == 'vertical' && (e.which === 38 || e.which === 40))
-          )) {
+                (options.orientation == 'horizontal' && (e.which === 37 || e.which === 39)) ||
+                (options.orientation == 'vertical' && (e.which === 38 || e.which === 40))
+            )) {
           e.preventDefault();
           return false;
         }
@@ -611,7 +608,7 @@
       options = $.extend({}, $.fn.waterwheelCarousel.defaults, newOptions);
 
       initializeCarouselData();
-      data.itemsContainer.find('img').hide();
+      data.itemsContainer.children().hide();
       forceImageDimensionsIfEnabled();
 
       preload(function () {
@@ -621,8 +618,8 @@
         setupStarterRotation();
       });
     }
-    
-    this.next = function() {
+
+    this.next = function () {
       autoPlay(true);
       options.autoPlay = 0;
 
@@ -642,42 +639,42 @@
 
   $.fn.waterwheelCarousel.defaults = {
     // number tweeks to change apperance
-    startingItem:               1,   // item to place in the center of the carousel. Set to 0 for auto
-    separation:                 175, // distance between items in carousel
-    separationMultiplier:       0.6, // multipled by separation distance to increase/decrease distance for each additional item
-    horizonOffset:              0,   // offset each item from the "horizon" by this amount (causes arching)
-    horizonOffsetMultiplier:    1,   // multipled by horizon offset to increase/decrease offset for each additional item
-    sizeMultiplier:             0.7, // determines how drastically the size of each item changes
-    opacityMultiplier:          0.8, // determines how drastically the opacity of each item changes
-    horizon:                    0,   // how "far in" the horizontal/vertical horizon should be set from the container wall. 0 for auto
-    flankingItems:              3,   // the number of items visible on either side of the center                  
+    startingItem: 1,   // item to place in the center of the carousel. Set to 0 for auto
+    separation: 175, // distance between items in carousel
+    separationMultiplier: 0.6, // multipled by separation distance to increase/decrease distance for each additional item
+    horizonOffset: 0,   // offset each item from the "horizon" by this amount (causes arching)
+    horizonOffsetMultiplier: 1,   // multipled by horizon offset to increase/decrease offset for each additional item
+    sizeMultiplier: 0.7, // determines how drastically the size of each item changes
+    opacityMultiplier: 0.8, // determines how drastically the opacity of each item changes
+    horizon: 0,   // how "far in" the horizontal/vertical horizon should be set from the container wall. 0 for auto
+    flankingItems: 3,   // the number of items visible on either side of the center
 
     // animation
-    speed:                      300,      // speed in milliseconds it will take to rotate from one to the next
-    animationEasing:            'linear', // the easing effect to use when animating
-    quickerForFurther:          true,     // set to true to make animations faster when clicking an item that is far away from the center
-    edgeFadeEnabled:            false,    // when true, items fade off into nothingness when reaching the edge. false to have them move behind the center image
-    
+    speed: 300,      // speed in milliseconds it will take to rotate from one to the next
+    animationEasing: 'linear', // the easing effect to use when animating
+    quickerForFurther: true,     // set to true to make animations faster when clicking an item that is far away from the center
+    edgeFadeEnabled: false,    // when true, items fade off into nothingness when reaching the edge. false to have them move behind the center image
+
     // misc
-    linkHandling:               2,                 // 1 to disable all (used for facebox), 2 to disable all but center (to link images out)
-    autoPlay:                   0,                 // indicate the speed in milliseconds to wait before autorotating. 0 to turn off. Can be negative
-    orientation:                'horizontal',      // indicate if the carousel should be 'horizontal' or 'vertical'
-    activeClassName:            'carousel-center', // the name of the class given to the current item in the center
-    keyboardNav:                false,             // set to true to move the carousel with the arrow keys
-    keyboardNavOverride:        true,              // set to true to override the normal functionality of the arrow keys (prevents scrolling)
-    imageNav:                   true,              // clicking a non-center image will rotate that image to the center
+    linkHandling: 2,                 // 1 to disable all (used for facebox), 2 to disable all but center (to link images out)
+    autoPlay: 0,                 // indicate the speed in milliseconds to wait before autorotating. 0 to turn off. Can be negative
+    orientation: 'horizontal',      // indicate if the carousel should be 'horizontal' or 'vertical'
+    activeClassName: 'carousel-center', // the name of the class given to the current item in the center
+    keyboardNav: false,             // set to true to move the carousel with the arrow keys
+    keyboardNavOverride: true,              // set to true to override the normal functionality of the arrow keys (prevents scrolling)
+    imageNav: true,              // clicking a non-center image will rotate that image to the center
 
     // preloader
-    preloadImages:              true,  // disable/enable the image preloader. 
-    forcedImageWidth:           0,     // specify width of all images; otherwise the carousel tries to calculate it
-    forcedImageHeight:          0,     // specify height of all images; otherwise the carousel tries to calculate it
+    preloadImages: true,  // disable/enable the image preloader.
+    forcedImageWidth: 0,     // specify width of all images; otherwise the carousel tries to calculate it
+    forcedImageHeight: 0,     // specify height of all images; otherwise the carousel tries to calculate it
 
     // callback functions
-    movingToCenter:             $.noop, // fired when an item is about to move to the center position
-    movedToCenter:              $.noop, // fired when an item has finished moving to the center
-    clickedCenter:              $.noop, // fired when the center item has been clicked
-    movingFromCenter:           $.noop, // fired when an item is about to leave the center position
-    movedFromCenter:            $.noop  // fired when an item has finished moving from the center
+    movingToCenter: $.noop, // fired when an item is about to move to the center position
+    movedToCenter: $.noop, // fired when an item has finished moving to the center
+    clickedCenter: $.noop, // fired when the center item has been clicked
+    movingFromCenter: $.noop, // fired when an item is about to leave the center position
+    movedFromCenter: $.noop  // fired when an item has finished moving from the center
   };
 
 })(jQuery);
