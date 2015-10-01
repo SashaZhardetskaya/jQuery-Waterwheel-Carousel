@@ -1,6 +1,7 @@
-# jQuery-Waterwheel-Carousel with ability to rotate blocks (e.g. <div />'s) instead of images (<img />).
+# jQuery-Waterwheel-Carousel with ability to rotate blocks (e.g. <div />'s) instead of images (<img />). #
 
-## Author's README:
+Author's README:
+----------------
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
